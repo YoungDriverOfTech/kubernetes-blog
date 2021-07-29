@@ -82,23 +82,28 @@ ssh-copy-id -i .ssh/id_rsa.pub  root@192.168.0.101
 
 ## 在 Centos7 系统上安装Docker
 1. 添加依赖
-
+```
 yum install -y yum-utils device-mapper-persistent-data lvm2
-
+```
 2. 设置yum源
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-　
-
+```
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo (阿里镜像)
+yum-config-manager --add-repo http://download.docker.com/linux/centos/docker-ce.repo （中央仓库）
+```
 3. 查看仓库中所有Docker版本
+```
 yum list docker-ce --showduplicates | sort -r
-　
+```
 4. 安装Docker
-　　　
+```
 yum -y install docker-ce
+```
 
 5. 启动并加入开机启动
+```
 systemctl start docker
 systemctl enable docker
+```
 
 # 2-6 安装 Mysql Server 和 Mysq Workbench
 ## 环境准备
@@ -134,6 +139,7 @@ default-character-set=utf8
 ```
 
 2. 运行 Mysql Docker 镜像
+```
 docker run \
  --name mysql57 \
  -p 3306:3306 \
@@ -142,41 +148,51 @@ docker run \
  -v /opt/mysql/my.cnf:/etc/mysql/my.cnf:rw \
  -e MYSQL_ROOT_PASSWORD=password \
  -d mysql:5.7.30 --default-authentication-plugin=mysql_native_password
+```
 
-3. 登录 mysql server，设置 root 密码
-mysql -uroot -p
-UPDATE mysql.user SET host='%' WHERE user='root';
-flush privileges;
+3. 安装 mysql 客户端
+```
+yum install -y mysql 
+```
 
-
-4. 安装Mysql client
-- 添加rpm源
- rpm -ivh https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
-
-- 安装x64位的 mysql客户端
- yum install mysql-community-client.x86_64 -y 
+4. 连接 Mysql Server
+- 创建数据库blogDB，并且选择字符集 UTF-8.
+  
 - 登录 mysql server
 mysql -h 127.0.0.1 -uroot -p
 输入密码：password
 
 -创建数据库 blogDB
+```
 CREATE DATABASE IF NOT EXISTS blogDB DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+```
 
 # 2-7 博客应用编译，打包，运行
 
-## 1. 项目编译，打包
-在 IDEA 里设置 Maven 项目。
+## 1. 各种软件安装
+### jdk1.8
 ```
-cd Final
-mvn package
+sudo yum install java-1.8.0-openjdk
+java -version
+```
+### maven
+```
+sudo yum install maven
+mvn ––version
+```
+### git
+```
+sudo yum install git
+git --version
 ```
 
-## 2. 运行博客项目
+## 2. 生成公钥上传至github，并且克隆项目
 ```
-java -jar target/kubeblog.jar
+ssh-keygen
+git clone 仓库地址
+cd 进入项目代码目录
+mav package 
+java -jar target/项目名字
 ```
 - 访问博客用户端：http://localhost:5000
 - 访问博客管理员端：http://localhost:5000/admin, 用户名密码 admin/password
-
-
-
